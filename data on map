@@ -1,0 +1,22 @@
+class MapScreen extends StatelessWidget {
+  final List<Household> households;
+
+  MapScreen({required this.households});
+
+  @override
+  Widget build(BuildContext context) {
+    return GoogleMap(
+      initialCameraPosition: CameraPosition(
+        target: LatLng(0, 0),
+        zoom: 8,
+      ),
+      markers: households.map((household) {
+        return Marker(
+          markerId: MarkerId(household.id.toString()),
+          position: LatLng(household.latitude, household.longitude),
+          infoWindow: InfoWindow(title: household.name),
+        );
+      }).toSet(),
+    );
+  }
+}
