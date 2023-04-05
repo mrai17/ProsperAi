@@ -1,0 +1,20 @@
+class PredictionResultScreen extends StatelessWidget {
+  final String predictionResult;
+
+  PredictionResultScreen({required this.predictionResult});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Poverty Prediction Result'),
+      ),
+      body: Center(
+        child: Text(
+          'The prediction result is: $predictionResult',
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
+    );
+  }
+}
