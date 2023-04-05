@@ -1,0 +1,9 @@
+Future<List<Household>> fetchHouseholds() async {
+  final response = await http.get(Uri.parse('https://example.com/households'));
+  if (response.statusCode == 200) {
+    List<dynamic> data = json.decode(response.body);
+    return data.map((json) => Household.fromJson(json)).toList();
+  } else {
+    throw Exception('Failed to load households');
+  }
+}
