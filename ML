@@ -1,0 +1,38 @@
+import 'package:tflite/tflite.dart';
+
+class PovertyPredictor {
+  late List<double> _incomeData;
+  late List<double> _educationData;
+  late List<double> _healthcareData;
+
+  Future<void> loadModel() async {
+    String modelPath = 'assets/poverty_predictor.tflite';
+    await Tflite.loadModel(
+      model: modelPath,
+      labels: ['poverty', 'non-poverty'],
+    );
+  }
+
+  void setInputData({
+    required List<double> incomeData,
+    required List<double> educationData,
+    required List<double> healthcareData,
+  }) {
+    _incomeData = incomeData;
+    _educationData = educationData;
+    _healthcareData = healthcareData;
+  }
+
+  Future<String> predict() async {
+    List<dynamic> inputs = [
+      _incomeData,
+      _educationData,
+      _healthcareData,
+    ];
+    var output = await Tflite.runModelOnList(
+      inputList: inputs,
+      inputType: TfliteType.float32List,
+    );
+    return output[0]['label'];
+  }
+}
