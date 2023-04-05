@@ -18,3 +18,79 @@ class PredictionResultScreen extends StatelessWidget {
     );
   }
 }
+class PovertyPredictionApp extends StatefulWidget {
+  @override
+  _PovertyPredictionAppState createState() => _PovertyPredictionAppState();
+}
+
+class _PovertyPredictionAppState extends State<PovertyPredictionApp> {
+  final PovertyPredictor _povertyPredictor = PovertyPredictor();
+  bool _isLoading = false;
+  List<Household> _households = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadModel();
+    _fetchData();
+  }
+
+  Future<void> _loadModel() async {
+    setState(() => _isLoading = true);
+    await _povertyPredictor.loadModel();
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _fetchData() async {
+    setState(() => _isLoading = true);
+    _households = await fetchHouseholds();
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _predictPoverty(Household household) async {
+    double income = household.income;
+    double education = household.education;
+    double healthcare = household.healthcare;
+    _povertyPredictor.setInputData(
+      incomeData: [income],
+      educationData: [education],
+      healthcareData: [healthcare],
+    );
+    String predictionResult = await _povertyPredictor.predict();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PredictionResultScreen(
+          predictionResult: predictionResult,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Poverty Prediction App',
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Poverty Prediction App'),
+        ),
+        body: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: LatLng(0, 0),
+                  zoom: 8,
+                ),
+                markers: _households.map((household) {
+                  return Marker(
+                    markerId: MarkerId(household.id.toString()),
+                    position: LatLng(household.latitude, household.longitude),
+                    onTap: () => _predictPoverty(household),
+                  );
+                }).toSet(),
+              ),
+      ),
+    );
+  }
+}
